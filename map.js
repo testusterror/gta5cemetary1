@@ -1,71 +1,101 @@
 // ============================================================
-// Friedhofkarte - Leaflet Tile Map
+// Great Chaparell Cemetery
+// Leaflet Image Tile Map
 // ============================================================
 
-// Größe des ORIGINALBILDES
 const MAP_WIDTH = 10000;
 const MAP_HEIGHT = 10000;
 
-// Höchste erzeugte Tile-Zoomstufe
-const MAX_TILE_ZOOM = 6;
+const TILE_SIZE = 256;
+const MAX_ZOOM = 6;
+
 
 // ------------------------------------------------------------
-// Leaflet-Koordinatensystem
+// Eigenes Koordinatensystem
 // ------------------------------------------------------------
 
-// Bei Leaflet Zoom 6 soll die Originalauflösung gelten.
-//
-// Deshalb verkleinern wir das Koordinatensystem um 2^6.
-// Dadurch passen die erzeugten Tiles exakt zum Leaflet-Grid.
+// Bei Zoom 6 entspricht ein Kartenpunkt einem Originalpixel.
+// Bei Zoom 5 entspricht ein Kartenpunkt zwei Originalpixeln usw.
 
-const scale = Math.pow(2, MAX_TILE_ZOOM);
+const CemeteryCRS = L.extend({}, L.CRS.Simple, {
+
+    transformation: new L.Transformation(
+        1,
+        0,
+        1,
+        0
+    ),
+
+    scale: function (zoom) {
+        return Math.pow(2, zoom);
+    },
+
+    zoom: function (scale) {
+        return Math.log(scale) / Math.LN2;
+    }
+});
+
+
+// ------------------------------------------------------------
+// Größe der Karte auf Zoom 0
+// ------------------------------------------------------------
+
+const scale = Math.pow(2, MAX_ZOOM);
 
 const mapWidth = MAP_WIDTH / scale;
 const mapHeight = MAP_HEIGHT / scale;
+
+
+// ------------------------------------------------------------
+// Karten-Grenzen
+// ------------------------------------------------------------
 
 const bounds = [
     [0, 0],
     [mapHeight, mapWidth]
 ];
 
+
 // ------------------------------------------------------------
-// Karte erzeugen
+// Leaflet Karte
 // ------------------------------------------------------------
 
 const map = L.map("map", {
-    crs: L.CRS.Simple,
+
+    crs: CemeteryCRS,
 
     minZoom: 0,
-    maxZoom: MAX_TILE_ZOOM,
-
-    zoomSnap: 1,
-    zoomDelta: 1,
+    maxZoom: MAX_ZOOM,
 
     zoomControl: true,
 
-    maxBounds: bounds,
-    maxBoundsViscosity: 1.0,
+    attributionControl: false,
 
-    attributionControl: false
+    maxBounds: bounds,
+    maxBoundsViscosity: 1.0
 });
 
+
 // ------------------------------------------------------------
-// Tile-Layer
+// Tile Layer
 // ------------------------------------------------------------
 
 L.tileLayer("tiles/{z}/{x}/{y}.jpg", {
-    tileSize: 256,
+
+    tileSize: TILE_SIZE,
 
     minZoom: 0,
-    maxZoom: MAX_TILE_ZOOM,
+    maxZoom: MAX_ZOOM,
 
     noWrap: true,
 
     keepBuffer: 2
+
 }).addTo(map);
 
+
 // ------------------------------------------------------------
-// Karte beim Start komplett anzeigen
+// Startansicht
 // ------------------------------------------------------------
 
 map.fitBounds(bounds);
