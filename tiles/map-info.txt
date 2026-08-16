@@ -1,0 +1,4 @@
+width=12025
+height=10932
+tile_size=256
+max_zoom=6
