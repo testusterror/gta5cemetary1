@@ -11,19 +11,18 @@ const MAX_ZOOM = 6;
 
 
 // ------------------------------------------------------------
-// Eigenes Koordinatensystem
+// Eigenes CRS für ein normales Bild
 // ------------------------------------------------------------
 
-// Bei Zoom 6 entspricht ein Kartenpunkt einem Originalpixel.
-// Bei Zoom 5 entspricht ein Kartenpunkt zwei Originalpixeln usw.
+const ImageCRS = L.extend({}, L.CRS.Simple, {
 
-const CemeteryCRS = L.extend({}, L.CRS.Simple, {
-
+    // X bleibt unverändert.
+    // Y wird nach unten gezählt, genau wie bei einem Bild.
     transformation: new L.Transformation(
         1,
         0,
-        1,
-        0
+        -1,
+        MAP_HEIGHT / Math.pow(2, MAX_ZOOM)
     ),
 
     scale: function (zoom) {
@@ -37,32 +36,32 @@ const CemeteryCRS = L.extend({}, L.CRS.Simple, {
 
 
 // ------------------------------------------------------------
-// Größe der Karte auf Zoom 0
+// Kartengröße auf Zoom 0
 // ------------------------------------------------------------
 
 const scale = Math.pow(2, MAX_ZOOM);
 
-const mapWidth = MAP_WIDTH / scale;
-const mapHeight = MAP_HEIGHT / scale;
+const width = MAP_WIDTH / scale;
+const height = MAP_HEIGHT / scale;
 
 
 // ------------------------------------------------------------
-// Karten-Grenzen
+// Kartengrenzen
 // ------------------------------------------------------------
 
 const bounds = [
     [0, 0],
-    [mapHeight, mapWidth]
+    [height, width]
 ];
 
 
 // ------------------------------------------------------------
-// Leaflet Karte
+// Karte
 // ------------------------------------------------------------
 
 const map = L.map("map", {
 
-    crs: CemeteryCRS,
+    crs: ImageCRS,
 
     minZoom: 0,
     maxZoom: MAX_ZOOM,
@@ -72,12 +71,15 @@ const map = L.map("map", {
     attributionControl: false,
 
     maxBounds: bounds,
-    maxBoundsViscosity: 1.0
+    maxBoundsViscosity: 1.0,
+
+    zoomSnap: 1,
+    zoomDelta: 1
 });
 
 
 // ------------------------------------------------------------
-// Tile Layer
+// Tiles
 // ------------------------------------------------------------
 
 L.tileLayer("tiles/{z}/{x}/{y}.jpg", {
