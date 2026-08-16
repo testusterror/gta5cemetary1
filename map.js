@@ -1,25 +1,42 @@
-// Größe der Originalkarte.
-// Diese Werte werden später vom Tile-Generator automatisch aus
-// deiner Originaldatei ermittelt.
+// ============================================================
+// Friedhofkarte - Leaflet Tile Map
+// ============================================================
+
+// Größe des ORIGINALBILDES
 const MAP_WIDTH = 10000;
 const MAP_HEIGHT = 10000;
 
-// Anzahl der Zoomstufen.
-// Für 10.000 x 10.000 mit 256px Tiles: 0 bis 6.
-const MAX_ZOOM = 6;
+// Höchste erzeugte Tile-Zoomstufe
+const MAX_TILE_ZOOM = 6;
 
-// Leaflet CRS.Simple behandelt die Karte als normales Bild,
-// nicht als geografische Weltkarte.
+// ------------------------------------------------------------
+// Leaflet-Koordinatensystem
+// ------------------------------------------------------------
+
+// Bei Leaflet Zoom 6 soll die Originalauflösung gelten.
+//
+// Deshalb verkleinern wir das Koordinatensystem um 2^6.
+// Dadurch passen die erzeugten Tiles exakt zum Leaflet-Grid.
+
+const scale = Math.pow(2, MAX_TILE_ZOOM);
+
+const mapWidth = MAP_WIDTH / scale;
+const mapHeight = MAP_HEIGHT / scale;
+
 const bounds = [
     [0, 0],
-    [MAP_HEIGHT, MAP_WIDTH]
+    [mapHeight, mapWidth]
 ];
+
+// ------------------------------------------------------------
+// Karte erzeugen
+// ------------------------------------------------------------
 
 const map = L.map("map", {
     crs: L.CRS.Simple,
 
     minZoom: 0,
-    maxZoom: MAX_ZOOM,
+    maxZoom: MAX_TILE_ZOOM,
 
     zoomSnap: 1,
     zoomDelta: 1,
@@ -32,19 +49,23 @@ const map = L.map("map", {
     attributionControl: false
 });
 
-// TileLayer.
-// x = Spalte, y = Zeile, z = Zoomstufe.
+// ------------------------------------------------------------
+// Tile-Layer
+// ------------------------------------------------------------
+
 L.tileLayer("tiles/{z}/{x}/{y}.jpg", {
     tileSize: 256,
+
     minZoom: 0,
-    maxZoom: MAX_ZOOM,
+    maxZoom: MAX_TILE_ZOOM,
 
     noWrap: true,
 
-    // Schwarzer Hintergrund für Bereiche außerhalb
-    // bzw. für die gepaddeten Rand-Tiles.
-    errorTileUrl: ""
+    keepBuffer: 2
 }).addTo(map);
 
-// Beim Start die komplette Karte anzeigen.
+// ------------------------------------------------------------
+// Karte beim Start komplett anzeigen
+// ------------------------------------------------------------
+
 map.fitBounds(bounds);
