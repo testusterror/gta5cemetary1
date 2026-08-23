@@ -41,8 +41,13 @@ const ImageCRS = L.extend({}, L.CRS.Simple, {
 
 const scale = Math.pow(2, MAX_ZOOM);
 
-const width = MAP_WIDTH / scale;
-const height = MAP_HEIGHT / scale;
+// Anzahl der tatsächlich erzeugten Tiles
+const tileColumns = Math.ceil(MAP_WIDTH / TILE_SIZE);
+const tileRows = Math.ceil(MAP_HEIGHT / TILE_SIZE);
+
+// Tatsächliche Größe der Tile-Fläche
+const width = (tileColumns * TILE_SIZE) / scale;
+const height = (tileRows * TILE_SIZE) / scale;
 
 
 // ------------------------------------------------------------
