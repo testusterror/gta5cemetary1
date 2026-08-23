@@ -75,9 +75,6 @@ const map = L.map("map", {
 
     attributionControl: false,
 
-    maxBounds: bounds,
-    maxBoundsViscosity: 1.0,
-
     zoomSnap: 1,
     zoomDelta: 1
 });
